@@ -3,6 +3,7 @@ package br.com.dicasdeumdev.api.services.impl;
 import br.com.dicasdeumdev.api.domain.User;
 import br.com.dicasdeumdev.api.domain.dto.UserDTO;
 import br.com.dicasdeumdev.api.repositories.UserRepository;
+import br.com.dicasdeumdev.api.services.exceptions.DataIntegratyViolationException;
 import br.com.dicasdeumdev.api.services.exceptions.ObjectNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,6 +19,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.anyInt;
 import static org.mockito.Mockito.when;
 
@@ -61,14 +63,14 @@ class UserServiceImplTest {
     }
 
     @Test
-    void whenFindByIdThenReturnAnObjectNotFoundException(){
+    void whenFindByIdThenReturnAnObjectNotFoundException() {
         when(repository.findById(anyInt())).thenThrow(new ObjectNotFoundException(OBJETO_NAO_ENCONTRADO));
 
-        try{
+        try {
             service.findById(ID);
-        }catch(Exception ex){
+        } catch (Exception ex) {
             assertEquals(ObjectNotFoundException.class, ex.getClass());
-            assertEquals(OBJETO_NAO_ENCONTRADO,ex.getMessage());
+            assertEquals(OBJETO_NAO_ENCONTRADO, ex.getMessage());
         }
     }
 
@@ -76,9 +78,9 @@ class UserServiceImplTest {
     void whenFindAllThenReturnAListOfUsers() {
         when(repository.findAll()).thenReturn(List.of(user));
 
-        List<User>response = service.findAll();
+        List<User> response = service.findAll();
         assertNotNull(response);
-        assertEquals(1,response.size());
+        assertEquals(1, response.size());
         assertEquals(User.class, response.get(INDEX).getClass());
         assertEquals(NAME, response.get(INDEX).getName());
         assertEquals(ID, response.get(INDEX).getId());
@@ -93,10 +95,26 @@ class UserServiceImplTest {
         User response = service.create(userDTO);
         assertNotNull(response);
         assertEquals(User.class, response.getClass());
-        assertEquals(ID,response.getId());
-        assertEquals(NAME,response.getName());
-        assertEquals(EMAIL,response.getEmail());
+        assertEquals(ID, response.getId());
+        assertEquals(NAME, response.getName());
+        assertEquals(EMAIL, response.getEmail());
         assertEquals(PASSWORD, response.getPassword());
+
+    }
+
+    @Test
+    void whenCreateThenReturnDataIntegratyViolationException() {
+        when(repository.findByEmail(anyString())).thenReturn(optionalUser);
+
+
+        try {
+            optionalUser.get().setId(2);
+            service.create(userDTO);
+        } catch (Exception ex) {
+            assertEquals(DataIntegratyViolationException.class, ex.getClass());
+            assertEquals("E-mail já cadastrado no sistema", ex.getMessage());
+
+        }
 
     }
 
