@@ -11,8 +11,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockHttpServletRequest;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import java.time.LocalDateTime;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 class ResourceEcxeptionHandlerTest {
@@ -51,6 +52,7 @@ class ResourceEcxeptionHandlerTest {
                 .dataIntegrityViolationException(new DataIntegratyViolationException(E_MAIL_JA_CADASTRADO),
                         new MockHttpServletRequest());
 
+
         assertNotNull(response);
         assertNotNull(response.getBody());
 
@@ -59,6 +61,9 @@ class ResourceEcxeptionHandlerTest {
         assertEquals(StandardError.class,response.getBody().getClass());
         assertEquals(E_MAIL_JA_CADASTRADO, response.getBody().getError());
         assertEquals(400, response.getBody().getStatus());
+
+        assertNotEquals("/user/2",response.getBody().getPath());
+        assertNotEquals(LocalDateTime.now(),response.getBody().getTimestamp());
 
     }
 }
