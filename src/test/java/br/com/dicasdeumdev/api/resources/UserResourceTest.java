@@ -6,16 +6,21 @@ import br.com.dicasdeumdev.api.services.impl.UserServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
-import org.mockito.*;
+import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.modelmapper.ModelMapper;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.when;
 
 @SpringBootTest
 class UserResourceTest {
@@ -59,11 +64,29 @@ class UserResourceTest {
         assertEquals(response.getBody().getName(),NAME);
         assertEquals(response.getBody().getPassword(),PASSWORD);
 
-
     }
 
     @Test
-    void findAll() {
+    void whenFindAllThenReturnAListOfUserDTO() {
+        when(service.findAll()).thenReturn(List.of(user));
+        when(mapper.map(any(),any())).thenReturn(userDTO);
+
+        ResponseEntity<List<UserDTO>> response = resource.findAll();
+
+        assertNotNull(response);
+        assertNotNull(response.getBody());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(ResponseEntity.class, response.getClass());
+        assertEquals(ArrayList.class,response.getBody().getClass());
+        assertEquals(UserDTO.class,response.getBody().get(INDEX).getClass());
+
+        assertEquals(ID,response.getBody().get(INDEX).getId());
+        assertEquals(EMAIL,response.getBody().get(INDEX).getEmail());
+        assertEquals(NAME,response.getBody().get(INDEX).getName());
+        assertEquals(PASSWORD,response.getBody().get(INDEX).getPassword());
+
+
+
     }
 
     @Test
