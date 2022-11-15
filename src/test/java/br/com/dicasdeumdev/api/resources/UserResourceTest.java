@@ -6,10 +6,16 @@ import br.com.dicasdeumdev.api.services.impl.UserServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
-import org.mockito.Mock;
+import org.mockito.*;
 import org.mockito.MockitoAnnotations;
 import org.modelmapper.ModelMapper;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.ResponseEntity;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
 @SpringBootTest
 class UserResourceTest {
@@ -37,7 +43,23 @@ class UserResourceTest {
     }
 
     @Test
-    void findById() {
+    void whenFindByIdThenReturnSuccess() {
+        when(service.findById(anyInt())).thenReturn(user);
+        when(mapper.map(any(),any())).thenReturn(userDTO);
+
+        ResponseEntity<UserDTO> response = resource.findById(ID);
+
+        assertNotNull(response);
+        assertNotNull(response.getBody());
+        assertEquals(ResponseEntity.class, response.getClass());
+        assertEquals(UserDTO.class,response.getBody().getClass());
+
+        assertEquals(response.getBody().getId(),ID);
+        assertEquals(response.getBody().getEmail(),EMAIL);
+        assertEquals(response.getBody().getName(),NAME);
+        assertEquals(response.getBody().getPassword(),PASSWORD);
+
+
     }
 
     @Test
@@ -55,7 +77,6 @@ class UserResourceTest {
     @Test
     void delete() {
     }
-
 
     private void startUser() {
         user = new User(ID, NAME, EMAIL, PASSWORD);
